@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="{{ 'zh-CN' if lang == 'cn' else 'en' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ (cn_name if cn_name else company_name) if lang == 'cn' else company_name }} ({{ ticker }}) — {{ '投资简报' if lang == 'cn' else 'Investment Brief' }}</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f3f8;
+    color: #1a2340;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 960px; margin: 32px auto; background: #fff; box-shadow: 0 2px 16px rgba(0,30,80,.12); }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0a1f44 0%, #1a3a6e 100%);
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .header-logo {
+    width: 52px; height: 52px; border-radius: 10px;
+    object-fit: contain; background: #fff; padding: 4px;
+  }
+  .header-logo-placeholder {
+    width: 52px; height: 52px; border-radius: 10px;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: #fff;
+  }
+  .header-meta { text-align: right; font-size: 12px; opacity: .75; line-height: 1.8; }
+  .company-name {
+    font-size: 28px; font-weight: 700; letter-spacing: .5px;
+    margin-top: 18px; color: #fff;
+  }
+  .ticker-badge {
+    display: inline-block;
+    background: #c9a84c;
+    color: #fff;
+    font-size: 13px; font-weight: 700;
+    padding: 3px 12px; border-radius: 4px;
+    margin-left: 10px; vertical-align: middle; letter-spacing: 1px;
+  }
+  .header-tagline { font-size: 13px; opacity: .7; margin-top: 6px; }
+
+  /* ── Pill stats bar ── */
+  .stats-bar {
+    background: #0d2856;
+    padding: 14px 48px;
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .stat-item { color: #fff; }
+  .stat-label { font-size: 10px; opacity: .6; text-transform: uppercase; letter-spacing: .8px; }
+  .stat-value { font-size: 16px; font-weight: 700; color: #f0c040; }
+
+  /* ── Body ── */
+  .body { padding: 40px 48px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 2px solid #e4ebf5;
+    padding-bottom: 8px; margin-bottom: 16px;
+  }
+  .section-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: #0a1f44; letter-spacing: .3px; }
+  .section-content { color: #2d3a50; }
+
+  /* icon bg colours */
+  .icon-summary  { background: #e8f0fe; }
+  .icon-metrics  { background: #e6f4ea; }
+  .icon-catalysts{ background: #fef9e7; }
+  .icon-risks    { background: #fce8e6; }
+  .icon-earnings { background: #f3e8fd; }
+  .icon-outlook  { background: #e8f5f9; }
+
+  /* ── Markdown rendering ── */
+  .section-content p { margin-bottom: 10px; }
+  .section-content ul, .section-content ol {
+    padding-left: 20px; margin-bottom: 10px;
+  }
+  .section-content li { margin-bottom: 6px; }
+  .section-content strong { color: #0a1f44; }
+  .section-content em { color: #5a6a8a; }
+
+  /* ── Metrics table ── */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 16px;
+  }
+  .metric-card {
+    background: #f5f8ff;
+    border: 1px solid #dde6f5;
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .metric-card .label { font-size: 11px; color: #6b7fa0; text-transform: uppercase; letter-spacing: .6px; }
+  .metric-card .value { font-size: 20px; font-weight: 700; color: #0a1f44; margin-top: 2px; }
+  .metric-card .sub   { font-size: 11px; color: #8a9ab8; margin-top: 2px; }
+
+  /* ── Earnings table ── */
+  .earnings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .earnings-table th {
+    background: #0a1f44; color: #fff;
+    padding: 8px 12px; text-align: left;
+    font-weight: 600; font-size: 12px; letter-spacing: .4px;
+  }
+  .earnings-table td { padding: 8px 12px; border-bottom: 1px solid #eaeff8; }
+  .earnings-table tr:last-child td { border-bottom: none; }
+  .earnings-table tr:nth-child(even) td { background: #f7faff; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
+  .badge-beat { background: #d4edda; color: #155724; }
+  .badge-miss { background: #f8d7da; color: #721c24; }
+  .badge-na   { background: #e2e3e5; color: #383d41; }
+
+  /* ── Price chart placeholder ── */
+  .price-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .price-box {
+    flex: 1; background: #f5f8ff; border: 1px solid #dde6f5;
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .price-box .label { font-size: 11px; color: #6b7fa0; text-transform: uppercase; letter-spacing: .6px; }
+  .price-box .value { font-size: 22px; font-weight: 700; color: #0a1f44; }
+  .price-box .change { font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .pos { color: #1a7f37; } .neg { color: #cf2929; }
+
+  /* ── Peers ── */
+  .peers-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .peer-tag {
+    background: #edf2ff; color: #2d52a0;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: .4px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #f5f8ff;
+    border-top: 1px solid #dde6f5;
+    padding: 20px 48px;
+    font-size: 11px; color: #8a9ab8;
+    line-height: 1.8;
+  }
+  .footer strong { color: #4a5a7a; }
+  .footer a { color: #2d52a0; text-decoration: none; }
+  .divider { height: 1px; background: #eaeff8; margin: 8px 0; }
+
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-top">
+      {% if logo_url %}
+      <img class="header-logo" src="{{ logo_url }}" alt="{{ company_name }} logo">
+      {% else %}
+      <div class="header-logo-placeholder">{{ ticker[0] }}</div>
+      {% endif %}
+      <div class="header-meta">
+        {% if lang == 'cn' %}
+        <div>生成时间：{{ generated_date }}</div>
+        <div>数据日期：{{ data_date }}</div>
+        <div>模型：{{ model_name }}</div>
+        {% else %}
+        <div>Generated: {{ generated_date }}</div>
+        <div>Data as of: {{ data_date }}</div>
+        <div>Model: {{ model_name }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="company-name">
+      {% if lang == 'cn' and cn_name %}{{ cn_name }}{% else %}{{ company_name }}{% endif %}
+      <span class="ticker-badge">{{ ticker }}</span>
+    </div>
+    <div class="header-tagline">{{ industry }} &nbsp;|&nbsp; {{ exchange }} &nbsp;|&nbsp; {{ country }}</div>
+  </div>
+
+  <!-- ── Stats bar ── -->
+  <div class="stats-bar">
+    {% if current_price %}
+    <div class="stat-item">
+      <div class="stat-label">{{ '当前价格' if lang == 'cn' else 'Current Price' }}</div>
+      <div class="stat-value">${{ current_price }}</div>
+    </div>
+    {% endif %}
+    {% if market_cap %}
+    <div class="stat-item">
+      <div class="stat-label">{{ '市值' if lang == 'cn' else 'Market Cap' }}</div>
+      <div class="stat-value">${{ market_cap }}B</div>
+    </div>
+    {% endif %}
+    {% if pe_ttm %}
+    <div class="stat-item">
+      <div class="stat-label">{{ '市盈率（TTM）' if lang == 'cn' else 'P/E (TTM)' }}</div>
+      <div class="stat-value">{{ pe_ttm }}x</div>
+    </div>
+    {% endif %}
+    {% if week52_range %}
+    <div class="stat-item">
+      <div class="stat-label">{{ '52周区间' if lang == 'cn' else '52W Range' }}</div>
+      <div class="stat-value">{{ week52_range }}</div>
+    </div>
+    {% endif %}
+    {% if price_change_3m is not none %}
+    <div class="stat-item">
+      <div class="stat-label">{{ '3个月涨跌' if lang == 'cn' else '3M Return' }}</div>
+      <div class="stat-value" style="color:{% if price_change_3m >= 0 %}#6ee09a{% else %}#ff8080{% endif %}">
+        {{ '%+.1f'|format(price_change_3m) }}%
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="body">
+
+    <!-- Executive Summary -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-summary">📋</div>
+        <div class="section-title">{{ '核心摘要' if lang == 'cn' else 'Executive Summary' }}</div>
+      </div>
+      <div class="section-content">{{ sections.executive_summary | safe }}</div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-metrics">📊</div>
+        <div class="section-title">{{ '关键指标' if lang == 'cn' else 'Key Metrics' }}</div>
+      </div>
+      {% if metrics %}
+      <div class="metrics-grid">
+        {% for m in metrics %}
+        <div class="metric-card">
+          <div class="label">{{ m.label }}</div>
+          <div class="value">{{ m.value }}</div>
+          {% if m.sub %}<div class="sub">{{ m.sub }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="section-content">{{ sections.key_metrics | safe }}</div>
+    </div>
+
+    <!-- Price context -->
+    {% if price_history %}
+    <div class="price-row">
+      <div class="price-box">
+        <div class="label">{{ '当前价格' if lang == 'cn' else 'Current Price' }}</div>
+        <div class="value">${{ price_history[-1].close }}</div>
+        <div class="change {% if price_change_3m >= 0 %}pos{% else %}neg{% endif %}">
+          {{ '%+.1f'|format(price_change_3m) }}% {{ '（3个月）' if lang == 'cn' else '(3M)' }}
+        </div>
+      </div>
+      <div class="price-box">
+        <div class="label">{{ '52周高点' if lang == 'cn' else '52W High' }}</div>
+        <div class="value">${{ week52_high }}</div>
+      </div>
+      <div class="price-box">
+        <div class="label">{{ '52周低点' if lang == 'cn' else '52W Low' }}</div>
+        <div class="value">${{ week52_low }}</div>
+      </div>
+      {% if peers %}
+      <div class="price-box" style="flex:2">
+        <div class="label">{{ '同业公司' if lang == 'cn' else 'Peer Companies' }}</div>
+        <div style="margin-top:8px" class="peers-list">
+          {% for p in peers[:8] %}
+          <span class="peer-tag">{{ p }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Recent Catalysts -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-catalysts">⚡</div>
+        <div class="section-title">{{ '近期催化剂' if lang == 'cn' else 'Recent Catalysts' }}</div>
+      </div>
+      <div class="section-content">{{ sections.recent_catalysts | safe }}</div>
+    </div>
+
+    <!-- Risk Factors -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-risks">⚠️</div>
+        <div class="section-title">{{ '风险因素' if lang == 'cn' else 'Risk Factors' }}</div>
+      </div>
+      <div class="section-content">{{ sections.risk_factors | safe }}</div>
+    </div>
+
+    <!-- Earnings Review -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-earnings">📈</div>
+        <div class="section-title">{{ '财报回顾' if lang == 'cn' else 'Earnings Review' }}</div>
+      </div>
+      {% if earnings %}
+      <table class="earnings-table">
+        <tr>
+          {% if lang == 'cn' %}
+          <th>季度</th><th>实际EPS</th><th>预期EPS</th><th>超预期幅度</th><th>结果</th>
+          {% else %}
+          <th>Period</th><th>Actual EPS</th><th>Est. EPS</th><th>Surprise</th><th>Result</th>
+          {% endif %}
+        </tr>
+        {% for e in earnings %}
+        <tr>
+          <td>{{ e.period }}</td>
+          <td>${{ e.actual_eps }}</td>
+          <td>${{ e.estimated_eps }}</td>
+          <td>{% if e.surprise_pct is not none %}{{ '%+.1f'|format(e.surprise_pct) }}%{% else %}—{% endif %}</td>
+          <td>
+            {% if e.result == 'beat' %}<span class="badge badge-beat">{{ '超预期' if lang == 'cn' else 'BEAT' }}</span>
+            {% elif e.result == 'miss' %}<span class="badge badge-miss">{{ '未达预期' if lang == 'cn' else 'MISS' }}</span>
+            {% else %}<span class="badge badge-na">—</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <br>
+      {% endif %}
+      <div class="section-content">{{ sections.earnings_review | safe }}</div>
+    </div>
+
+    <!-- Outlook -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-outlook">🔭</div>
+        <div class="section-title">{{ '前景展望' if lang == 'cn' else 'Outlook' }}</div>
+      </div>
+      <div class="section-content">{{ sections.outlook | safe }}</div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    {% if lang == 'cn' %}
+    <strong>数据来源：</strong>
+    基本面数据与新闻来自 <a href="https://finnhub.io">Finnhub</a> &nbsp;|&nbsp;
+    价格历史与财务报表来自 <a href="https://finance.yahoo.com">Yahoo Finance (yfinance)</a> &nbsp;|&nbsp;
+    分析内容由 <strong>{{ model_name }}</strong>（阿里云百炼 DashScope）生成
+    <div class="divider"></div>
+    <strong>免责声明：</strong>
+    本报告由程序自动生成，仅供参考，不构成任何投资建议、买卖证券的要约或推荐。过往表现不代表未来结果。
+    投资者在做出任何投资决策前，应进行独立尽职调查并咨询专业财务顾问。数据准确性不作保证。
+    &copy; {{ generated_year }} 投资简报生成器。
+    {% else %}
+    <strong>Data Sources:</strong>
+    Fundamental data and news via <a href="https://finnhub.io">Finnhub</a> &nbsp;|&nbsp;
+    Price history and financial statements via <a href="https://finance.yahoo.com">Yahoo Finance (yfinance)</a> &nbsp;|&nbsp;
+    Analysis generated by <strong>{{ model_name }}</strong> (Alibaba Cloud DashScope)
+    <div class="divider"></div>
+    <strong>Disclaimer:</strong>
+    This report is generated automatically for informational purposes only and does not constitute financial advice,
+    investment recommendations, or an offer to buy or sell any security. Past performance is not indicative of future results.
+    Always conduct your own due diligence and consult a qualified financial advisor before making investment decisions.
+    Data accuracy is not guaranteed. &copy; {{ generated_year }} Investment Brief Generator.
+    {% endif %}
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
