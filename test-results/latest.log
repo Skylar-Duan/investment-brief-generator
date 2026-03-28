@@ -1,0 +1,78 @@
+===== TEST RUN: Sat Mar 28 17:16:47 UTC 2026 =====
+Commit: 47aa05c32d3073cc4d6a1b5251f27aee2663a81d
+
+--- API Connection Test ---
+============================================================
+FINNHUB API TEST — AAPL
+============================================================
+
+[1] Company Profile:
+{
+  "country": "US",
+  "currency": "USD",
+  "estimateCurrency": "USD",
+  "exchange": "NASDAQ NMS - GLOBAL MARKET",
+  "finnhubIndustry": "Technology",
+  "ipo": "1980-12-12",
+  "logo": "https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/AAPL.png",
+  "marketCapitalization": 3652667.535715807,
+  "name": "Apple Inc",
+  "phone": "14089961010",
+  "shareOutstanding": 14702.7,
+  "ticker": "AAPL",
+  "weburl": "https://www.apple.com/"
+}
+
+[2] Basic Financials (first 20 metric keys):
+[
+  "10DayAverageTradingVolume",
+  "13WeekPriceReturnDaily",
+  "26WeekPriceReturnDaily",
+  "3MonthADReturnStd",
+  "3MonthAverageTradingVolume",
+  "52WeekHigh",
+  "52WeekHighDate",
+  "52WeekLow",
+  "52WeekLowDate",
+  "52WeekPriceReturnDaily",
+  "5DayPriceReturnDaily",
+  "assetTurnoverAnnual",
+  "assetTurnoverTTM",
+  "beta",
+  "bookValuePerShareAnnual",
+  "bookValuePerShareQuarterly",
+  "bookValueShareGrowth5Y",
+  "capexCagr5Y",
+  "cashFlowPerShareAnnual",
+  "cashFlowPerShareQuarterly"
+]
+    ... total 132 metrics available
+
+[3] Company News (2026-03-21 → 2026-03-28): 241 articles
+  - [1774710027] SPY Has Returned 217% Over 10 Years, But Its Top 3 Holdings Now Control the Outc
+  - [1774694100] This AI Giant Aims to Reach $9 Trillion in Market Cap. Is the Stock a Buy?
+  - [1774686669] VOO vs. VOOG: Which Vanguard ETF Has More Upside in 2026?
+
+Finnhub test PASSED
+
+============================================================
+DASHSCOPE (qwen-plus) API TEST
+============================================================
+
+Model reply: 你好！我是通义千问（Qwen），阿里巴巴集团旗下的超大规模语言模型，能够回答问题、创作文字（如写故事、公文、邮件、剧本等）、进行逻辑推理、编程，还能表达观点，甚至玩游戏，支持多种语言，致力于为你提供高效、智能的交互体验！
+
+Usage: CompletionUsage(completion_tokens=65, prompt_tokens=14, total_tokens=79, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetails(audio_tokens=None, cached_tokens=0))
+
+DashScope test PASSED
+
+
+--- Generate AAPL Report ---
+Traceback (most recent call last):
+  File "/home/runner/work/investment-brief-generator/investment-brief-generator/main.py", line 18, in <module>
+    from src.report_generator import generate_html_report
+  File "/home/runner/work/investment-brief-generator/investment-brief-generator/src/report_generator.py", line 10, in <module>
+    import markdown
+ModuleNotFoundError: No module named 'markdown'
+[FAILED] main.py AAPL
+
+===== END =====
