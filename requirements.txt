@@ -3,3 +3,4 @@ yfinance
 openai
 jinja2
 python-dotenv
+markdown
