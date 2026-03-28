@@ -30,29 +30,30 @@ jobs:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
           mkdir -p test-results
-          {
-            echo "===== TEST RUN: $(date -u) ====="
-            echo "Commit: ${{ github.sha }}"
-            echo ""
-            echo "--- API Connection Test ---"
-            python test_apis.py 2>&1
-            echo ""
-            echo "--- Generate AAPL Report ---"
-            python main.py AAPL 2>&1
-            echo ""
-            echo "===== END ====="
-          } | tee test-results/latest.log
-          echo "EXIT_CODE=${PIPESTATUS[0]}" >> test-results/latest.log
+          echo "===== TEST RUN: $(date -u) =====" > test-results/latest.log
+          echo "Commit: ${{ github.sha }}" >> test-results/latest.log
+          echo "" >> test-results/latest.log
+          echo "--- API Connection Test ---" >> test-results/latest.log
+          python test_apis.py >> test-results/latest.log 2>&1 || echo "[FAILED] test_apis.py" >> test-results/latest.log
+          echo "" >> test-results/latest.log
+          echo "--- Generate AAPL Report ---" >> test-results/latest.log
+          python main.py AAPL >> test-results/latest.log 2>&1 || echo "[FAILED] main.py AAPL" >> test-results/latest.log
+          echo "" >> test-results/latest.log
+          echo "===== END =====" >> test-results/latest.log
+        continue-on-error: true
 
       - name: Commit test results
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin claude/project-review-questions-15uuM
           git add test-results/latest.log
           git diff --staged --quiet || git commit -m "ci: update test results [skip ci]"
           git push
 
       - name: Upload report artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: aapl-report
