@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -22,17 +24,33 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Test API connections
+      - name: Run tests and capture results
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python test_apis.py
+        run: |
+          mkdir -p test-results
+          {
+            echo "===== TEST RUN: $(date -u) ====="
+            echo "Commit: ${{ github.sha }}"
+            echo ""
+            echo "--- API Connection Test ---"
+            python test_apis.py 2>&1
+            echo ""
+            echo "--- Generate AAPL Report ---"
+            python main.py AAPL 2>&1
+            echo ""
+            echo "===== END ====="
+          } | tee test-results/latest.log
+          echo "EXIT_CODE=${PIPESTATUS[0]}" >> test-results/latest.log
 
-      - name: Generate sample report (AAPL, English)
-        env:
-          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
-          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
-        run: python main.py AAPL
+      - name: Commit test results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add test-results/latest.log
+          git diff --staged --quiet || git commit -m "ci: update test results [skip ci]"
+          git push
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
