@@ -1,5 +1,5 @@
-===== TEST RUN: Sun Mar 29 02:55:20 UTC 2026 =====
-Commit: 03598c21124408812465ee21185d94cfd3dec6a4
+===== TEST RUN: Sun Mar 29 02:55:21 UTC 2026 =====
+Commit: 308fbd250e62c0638fd109cd8098ad7117d5102b
 
 --- API Test ---
 ============================================================
@@ -87,8 +87,8 @@ Fetching all data for AAPL...
 [analyzer] Building prompt for AAPL...
 [analyzer] Estimated input tokens: ~1140
 [analyzer] Calling qwen-plus...
-[analyzer] Tokens — input: 1548, output: 1127, total: 2675
-[analyzer] Estimated cost: $0.0020 USD
+[analyzer] Tokens — input: 1548, output: 1038, total: 2586
+[analyzer] Estimated cost: $0.0019 USD
   HTML: /home/runner/work/investment-brief-generator/investment-brief-generator/output/AAPL/2026-03-29_AAPL_brief_en_01.html
   MD  : /home/runner/work/investment-brief-generator/investment-brief-generator/output/AAPL/2026-03-29_AAPL_brief_en_01.md
 
