@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple Inc (AAPL) — Investment Brief</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f3f8;
+    color: #1a2340;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 960px; margin: 32px auto; background: #fff; box-shadow: 0 2px 16px rgba(0,30,80,.12); }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #0a1f44 0%, #1a3a6e 100%);
+    color: #fff;
+    padding: 36px 48px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .header-logo {
+    width: 52px; height: 52px; border-radius: 10px;
+    object-fit: contain; background: #fff; padding: 4px;
+  }
+  .header-logo-placeholder {
+    width: 52px; height: 52px; border-radius: 10px;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: #fff;
+  }
+  .header-meta { text-align: right; font-size: 12px; opacity: .75; line-height: 1.8; }
+  .company-name {
+    font-size: 28px; font-weight: 700; letter-spacing: .5px;
+    margin-top: 18px; color: #fff;
+  }
+  .ticker-badge {
+    display: inline-block;
+    background: #c9a84c;
+    color: #fff;
+    font-size: 13px; font-weight: 700;
+    padding: 3px 12px; border-radius: 4px;
+    margin-left: 10px; vertical-align: middle; letter-spacing: 1px;
+  }
+  .header-tagline { font-size: 13px; opacity: .7; margin-top: 6px; }
+
+  /* ── Pill stats bar ── */
+  .stats-bar {
+    background: #0d2856;
+    padding: 14px 48px;
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .stat-item { color: #fff; }
+  .stat-label { font-size: 10px; opacity: .6; text-transform: uppercase; letter-spacing: .8px; }
+  .stat-value { font-size: 16px; font-weight: 700; color: #f0c040; }
+
+  /* ── Body ── */
+  .body { padding: 40px 48px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 2px solid #e4ebf5;
+    padding-bottom: 8px; margin-bottom: 16px;
+  }
+  .section-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: #0a1f44; letter-spacing: .3px; }
+  .section-content { color: #2d3a50; }
+
+  /* icon bg colours */
+  .icon-summary  { background: #e8f0fe; }
+  .icon-metrics  { background: #e6f4ea; }
+  .icon-catalysts{ background: #fef9e7; }
+  .icon-risks    { background: #fce8e6; }
+  .icon-earnings { background: #f3e8fd; }
+  .icon-outlook  { background: #e8f5f9; }
+
+  /* ── Markdown rendering ── */
+  .section-content p { margin-bottom: 10px; }
+  .section-content ul, .section-content ol {
+    padding-left: 20px; margin-bottom: 10px;
+  }
+  .section-content li { margin-bottom: 6px; }
+  .section-content strong { color: #0a1f44; }
+  .section-content em { color: #5a6a8a; }
+
+  /* ── Metrics table ── */
+  .metrics-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 16px;
+  }
+  .metric-card {
+    background: #f5f8ff;
+    border: 1px solid #dde6f5;
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .metric-card .label { font-size: 11px; color: #6b7fa0; text-transform: uppercase; letter-spacing: .6px; }
+  .metric-card .value { font-size: 20px; font-weight: 700; color: #0a1f44; margin-top: 2px; }
+  .metric-card .sub   { font-size: 11px; color: #8a9ab8; margin-top: 2px; }
+
+  /* ── Earnings table ── */
+  .earnings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .earnings-table th {
+    background: #0a1f44; color: #fff;
+    padding: 8px 12px; text-align: left;
+    font-weight: 600; font-size: 12px; letter-spacing: .4px;
+  }
+  .earnings-table td { padding: 8px 12px; border-bottom: 1px solid #eaeff8; }
+  .earnings-table tr:last-child td { border-bottom: none; }
+  .earnings-table tr:nth-child(even) td { background: #f7faff; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
+  .badge-beat { background: #d4edda; color: #155724; }
+  .badge-miss { background: #f8d7da; color: #721c24; }
+  .badge-na   { background: #e2e3e5; color: #383d41; }
+
+  /* ── Price chart placeholder ── */
+  .price-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .price-box {
+    flex: 1; background: #f5f8ff; border: 1px solid #dde6f5;
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .price-box .label { font-size: 11px; color: #6b7fa0; text-transform: uppercase; letter-spacing: .6px; }
+  .price-box .value { font-size: 22px; font-weight: 700; color: #0a1f44; }
+  .price-box .change { font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .pos { color: #1a7f37; } .neg { color: #cf2929; }
+
+  /* ── Peers ── */
+  .peers-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .peer-tag {
+    background: #edf2ff; color: #2d52a0;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: .4px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #f5f8ff;
+    border-top: 1px solid #dde6f5;
+    padding: 20px 48px;
+    font-size: 11px; color: #8a9ab8;
+    line-height: 1.8;
+  }
+  .footer strong { color: #4a5a7a; }
+  .footer a { color: #2d52a0; text-decoration: none; }
+  .divider { height: 1px; background: #eaeff8; margin: 8px 0; }
+
+  @media print {
+    body { background: #fff; }
+    .page { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-top">
+      
+      <img class="header-logo" src="https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/AAPL.png" alt="Apple Inc logo">
+      
+      <div class="header-meta">
+        
+        <div>Generated: 2026-03-29 03:10 UTC</div>
+        <div>Data as of: 2026-03-29</div>
+        <div>Model: qwen-plus</div>
+        
+      </div>
+    </div>
+    <div class="company-name">
+      Apple Inc
+      <span class="ticker-badge">AAPL</span>
+    </div>
+    <div class="header-tagline">Technology &nbsp;|&nbsp; NASDAQ NMS - GLOBAL MARKET &nbsp;|&nbsp; US</div>
+  </div>
+
+  <!-- ── Stats bar ── -->
+  <div class="stats-bar">
+    
+    <div class="stat-item">
+      <div class="stat-label">Current Price</div>
+      <div class="stat-value">$248.8</div>
+    </div>
+    
+    
+    <div class="stat-item">
+      <div class="stat-label">Market Cap</div>
+      <div class="stat-value">$3652.7B</div>
+    </div>
+    
+    
+    <div class="stat-item">
+      <div class="stat-label">P/E (TTM)</div>
+      <div class="stat-value">32.6x</div>
+    </div>
+    
+    
+    <div class="stat-item">
+      <div class="stat-label">52W Range</div>
+      <div class="stat-value">$169.2101 – $288.62</div>
+    </div>
+    
+    
+    <div class="stat-item">
+      <div class="stat-label">3M Return</div>
+      <div class="stat-value" style="color:#ff8080">
+        -9.0%
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="body">
+
+    <!-- Executive Summary -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-summary">📋</div>
+        <div class="section-title">Executive Summary</div>
+      </div>
+      <div class="section-content"><p>Apple Inc. (AAPL) remains the world’s most valuable company amid mounting pressure to prove its AI leadership ahead of its 50th anniversary. While it continues to deliver consistent earnings beats and maintains exceptional profitability (ROE &gt;159%), its stock has underperformed year-to-date—down ~9% over three months—and faces intensifying scrutiny over AI execution, slowing revenue growth, and valuation premium concerns.</p></div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-metrics">📊</div>
+        <div class="section-title">Key Metrics</div>
+      </div>
+      
+      <div class="metrics-grid">
+        
+        <div class="metric-card">
+          <div class="label">P/E (TTM)</div>
+          <div class="value">32.6x</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">P/B</div>
+          <div class="value">51.0x</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">EPS (TTM)</div>
+          <div class="value">$7.46</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">ROE (TTM)</div>
+          <div class="value">159.9%</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">Gross Margin</div>
+          <div class="value">47.3%</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">Net Margin</div>
+          <div class="value">27.0%</div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="section-content"><ul>
+<li>P/E (TTM): 32.6x (vs. peer median ~18–22x; DELL: ~12x, HPQ: ~9x, NTAP: ~17x)  </li>
+<li>ROE (TTM): 159.94% (exceptional, driven by aggressive share buybacks and high net margins; peers average ~25–40%)  </li>
+<li>P/B: 50.98x (extremely elevated; reflects intangible strength but also high expectations)  </li>
+<li>EPS (TTM): $7.47 | Net Margin: 27.0% | Gross Margin: 47.3%  </li>
+<li>Debt/Equity: 1.35 (moderate leverage; cash-rich but increasingly reliant on debt for capital return)</li>
+</ul></div>
+    </div>
+
+    <!-- Price context -->
+    
+    <div class="price-row">
+      <div class="price-box">
+        <div class="label">Current Price</div>
+        <div class="value">$248.8</div>
+        <div class="change neg">
+          -9.0% (3M)
+        </div>
+      </div>
+      <div class="price-box">
+        <div class="label">52W High</div>
+        <div class="value">$288.62</div>
+      </div>
+      <div class="price-box">
+        <div class="label">52W Low</div>
+        <div class="value">$169.2101</div>
+      </div>
+      
+      <div class="price-box" style="flex:2">
+        <div class="label">Peer Companies</div>
+        <div style="margin-top:8px" class="peers-list">
+          
+          <span class="peer-tag">AAPL</span>
+          
+          <span class="peer-tag">DELL</span>
+          
+          <span class="peer-tag">WDC</span>
+          
+          <span class="peer-tag">SNDK</span>
+          
+          <span class="peer-tag">HPE</span>
+          
+          <span class="peer-tag">NTAP</span>
+          
+          <span class="peer-tag">PSTG</span>
+          
+          <span class="peer-tag">HPQ</span>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- Recent Catalysts -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-catalysts">⚡</div>
+        <div class="section-title">Recent Catalysts</div>
+      </div>
+      <div class="section-content"><ul>
+<li><strong>iOS 27 Siri Openness Strategy</strong>: Announced plan to integrate third-party AI assistants (Gemini, Claude, Copilot) into Siri—potentially unlocking new services revenue and accelerating AI adoption.  </li>
+<li><strong>50th Anniversary Milestone</strong>: Renewed investor focus on Apple’s innovation legacy and strategic pivot toward AI-driven services.  </li>
+<li><strong>Consistent Earnings Outperformance</strong>: Four of last four quarters delivered EPS beats (3 strong, 1 narrow miss), reinforcing operational discipline.  </li>
+<li><strong>Services Growth Acceleration</strong>: Implied by margin resilience and buyback-funded EPS accretion despite flat revenue growth.  </li>
+<li><strong>Market Correction Context</strong>: AAPL’s relative outperformance vs. broader “Mag 7” (all down YTD) may position it as a relative safe haven amid tech rotation.</li>
+</ul></div>
+    </div>
+
+    <!-- Risk Factors -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-risks">⚠️</div>
+        <div class="section-title">Risk Factors</div>
+      </div>
+      <div class="section-content"><ul>
+<li><strong>AI Execution Risk</strong>: Delayed or underwhelming AI features (e.g., Apple Intelligence rollout) could erode premium valuation and competitive positioning.  </li>
+<li><strong>Revenue Stagnation</strong>: 3Y revenue CAGR of just 1.8% signals maturing hardware cycle; dependence on Services (now ~24% of revenue) needs acceleration.  </li>
+<li><strong>Valuation Sensitivity</strong>: P/E of 32.6x leaves little margin for error—any EPS miss or guidance cut could trigger sharp multiple contraction.  </li>
+<li><strong>Regulatory &amp; Antitrust Pressure</strong>: Ongoing EU DMA enforcement, U.S. DOJ case, and App Store litigation pose near-term legal and operational risks.  </li>
+<li><strong>Supply Chain &amp; Geopolitical Exposure</strong>: Heavy reliance on China-based manufacturing and component sourcing amid U.S.-China tensions.</li>
+</ul></div>
+    </div>
+
+    <!-- Earnings Review -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-earnings">📈</div>
+        <div class="section-title">Earnings Review</div>
+      </div>
+      
+      <table class="earnings-table">
+        <tr>
+          
+          <th>Period</th><th>Actual EPS</th><th>Est. EPS</th><th>Surprise</th><th>Result</th>
+          
+        </tr>
+        
+        <tr>
+          <td>2025-12-31</td>
+          <td>$2.84</td>
+          <td>$2.7257</td>
+          <td>+4.2%</td>
+          <td>
+            <span class="badge badge-beat">BEAT</span>
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td>2025-09-30</td>
+          <td>$1.85</td>
+          <td>$1.8075</td>
+          <td>+2.4%</td>
+          <td>
+            <span class="badge badge-beat">BEAT</span>
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td>2025-06-30</td>
+          <td>$1.57</td>
+          <td>$1.4626</td>
+          <td>+7.3%</td>
+          <td>
+            <span class="badge badge-beat">BEAT</span>
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td>2025-03-31</td>
+          <td>$1.65</td>
+          <td>$1.6596</td>
+          <td>-0.6%</td>
+          <td>
+            <span class="badge badge-miss">MISS</span>
+            
+          </td>
+        </tr>
+        
+      </table>
+      <br>
+      
+      <div class="section-content"><ul>
+<li>Q4 FY25 (2025-12-31): $2.84 vs. $2.7257 → <strong>+4.2% beat</strong>  </li>
+<li>Q3 FY25 (2025-09-30): $1.85 vs. $1.8075 → <strong>+2.4% beat</strong>  </li>
+<li>Q2 FY25 (2025-06-30): $1.57 vs. $1.4626 → <strong>+7.3% beat</strong>  </li>
+<li>Q1 FY25 (2025-03-31): $1.65 vs. $1.6596 → <strong>−0.6% miss</strong><br />
+→ Strong sequential improvement and 3-of-4 beat streak; EPS growth driven by buybacks (+~3% annual share count reduction) and margin discipline—not top-line expansion.</li>
+</ul></div>
+    </div>
+
+    <!-- Outlook -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon icon-outlook">🔭</div>
+        <div class="section-title">Outlook</div>
+      </div>
+      <div class="section-content"><p>Apple’s path forward hinges on successfully monetizing AI—not just embedding it—while defending its ecosystem moat. The Siri openness strategy is a bold, potentially transformative shift that could catalyze Services revenue growth beyond current ~18% YoY run rate. However, with revenue growth stalled and valuation stretched, near-term upside depends more on AI narrative credibility and margin sustainability than hardware cycles. Investors should monitor iOS 27 adoption metrics, Services revenue contribution in upcoming reports, and any regulatory developments—but remain positioned for gradual de-risking of the AI thesis over the next 12–18 months. A fair value range remains $230–$275, contingent on execution.</p></div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    
+    <strong>Data Sources:</strong>
+    Fundamental data and news via <a href="https://finnhub.io">Finnhub</a> &nbsp;|&nbsp;
+    Price history and financial statements via <a href="https://finance.yahoo.com">Yahoo Finance (yfinance)</a> &nbsp;|&nbsp;
+    Analysis generated by <strong>qwen-plus</strong> (Alibaba Cloud DashScope)
+    <div class="divider"></div>
+    <strong>Disclaimer:</strong>
+    This report is generated automatically for informational purposes only and does not constitute financial advice,
+    investment recommendations, or an offer to buy or sell any security. Past performance is not indicative of future results.
+    Always conduct your own due diligence and consult a qualified financial advisor before making investment decisions.
+    Data accuracy is not guaranteed. &copy; 2026 Investment Brief Generator.
+    
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
