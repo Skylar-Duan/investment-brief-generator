@@ -1,7 +1,7 @@
-===== TEST RUN: Sat Mar 28 17:16:47 UTC 2026 =====
-Commit: 47aa05c32d3073cc4d6a1b5251f27aee2663a81d
+===== TEST RUN: Sun Mar 29 02:55:20 UTC 2026 =====
+Commit: 03598c21124408812465ee21185d94cfd3dec6a4
 
---- API Connection Test ---
+--- API Test ---
 ============================================================
 FINNHUB API TEST — AAPL
 ============================================================
@@ -48,10 +48,10 @@ FINNHUB API TEST — AAPL
 ]
     ... total 132 metrics available
 
-[3] Company News (2026-03-21 → 2026-03-28): 241 articles
-  - [1774710027] SPY Has Returned 217% Over 10 Years, But Its Top 3 Holdings Now Control the Outc
-  - [1774694100] This AI Giant Aims to Reach $9 Trillion in Market Cap. Is the Stock a Buy?
-  - [1774686669] VOO vs. VOOG: Which Vanguard ETF Has More Upside in 2026?
+[3] Company News (2026-03-22 → 2026-03-29): 241 articles
+  - [1774747684] At 50, Apple confronts its next big challenge: AI
+  - [1774740900] Prediction: These 2 Stocks Will Be Worth More Than Apple in a Decade
+  - [1774721176] Apple Turns Siri Into Multi Assistant Gateway For AI Services Revenue
 
 Finnhub test PASSED
 
@@ -65,14 +65,39 @@ Usage: CompletionUsage(completion_tokens=65, prompt_tokens=14, total_tokens=79, 
 
 DashScope test PASSED
 
+[PASS] test_apis
 
---- Generate AAPL Report ---
-Traceback (most recent call last):
-  File "/home/runner/work/investment-brief-generator/investment-brief-generator/main.py", line 18, in <module>
-    from src.report_generator import generate_html_report
-  File "/home/runner/work/investment-brief-generator/investment-brief-generator/src/report_generator.py", line 10, in <module>
-    import markdown
-ModuleNotFoundError: No module named 'markdown'
-[FAILED] main.py AAPL
+--- AAPL Report ---
+
+Generating briefs for 1 ticker(s): AAPL
+
+============================================================
+  Processing: AAPL
+============================================================
+
+Fetching all data for AAPL...
+  [profile] Fetching company profile for AAPL...
+  [financials] Fetching fundamentals for AAPL...
+  [news] Fetching last 7 days of news for AAPL...
+  [earnings] Fetching earnings surprises for AAPL...
+  [peers] Fetching peer companies for AAPL...
+  [price_target] Fetching analyst price target for AAPL...
+  [price_target] ERROR: FinnhubAPIException(status_code: 403): You don't have access to this resource.
+  [price] Fetching 3-month price history for AAPL...
+[analyzer] Building prompt for AAPL...
+[analyzer] Estimated input tokens: ~1140
+[analyzer] Calling qwen-plus...
+[analyzer] Tokens — input: 1548, output: 1127, total: 2675
+[analyzer] Estimated cost: $0.0020 USD
+  HTML: /home/runner/work/investment-brief-generator/investment-brief-generator/output/AAPL/2026-03-29_AAPL_brief_en_01.html
+  MD  : /home/runner/work/investment-brief-generator/investment-brief-generator/output/AAPL/2026-03-29_AAPL_brief_en_01.md
+
+============================================================
+  SUMMARY
+============================================================
+  OK   AAPL      /home/runner/work/investment-brief-generator/investment-brief-generator/output/AAPL/2026-03-29_AAPL_brief_en_01.html
+
+  1/1 reports generated successfully.
+[PASS] main.py AAPL
 
 ===== END =====
