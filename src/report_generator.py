@@ -4,10 +4,13 @@ Report generator — renders data + LLM brief into HTML and Markdown files.
 
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 import markdown
+
+_TEMPLATE_DIR = str(Path(__file__).parent.parent / "templates")
+_jinja_env = Environment(loader=FileSystemLoader(_TEMPLATE_DIR), autoescape=False)
 
 _INDUSTRY_ZH = {
     "Automobiles": "汽车", "Technology": "科技", "Software": "软件",
@@ -34,7 +37,15 @@ _EXCHANGE_ZH = {
     "AMEX": "美国证券交易所", "OTC": "场外交易", "OTC Markets": "场外交易",
     "Toronto Stock Exchange": "多伦多证券交易所", "London Stock Exchange": "伦敦证券交易所",
     "Hong Kong Stock Exchange": "香港证券交易所",
+    "Shanghai Stock Exchange": "上海证券交易所",
+    "Shenzhen Stock Exchange": "深圳证券交易所",
 }
+_CURRENCY_SYMBOL = {
+    "USD": "$", "HKD": "HK$", "CNY": "¥", "CNH": "¥",
+    "EUR": "€", "GBP": "£", "JPY": "¥", "KRW": "₩",
+    "CAD": "CA$", "AUD": "A$", "SGD": "S$", "TWD": "NT$",
+}
+
 _COUNTRY_ZH = {
     "US": "美国", "CN": "中国", "CA": "加拿大", "GB": "英国", "JP": "日本",
     "KR": "韩国", "DE": "德国", "FR": "法国", "AU": "澳大利亚", "SG": "新加坡",
@@ -102,9 +113,10 @@ def generate_html_report(
     Returns (html_path, md_path).
     """
     ticker = ticker.upper()
-    now = datetime.now(tz=timezone.utc)
+    _CST = timezone(timedelta(hours=8))          # Beijing / Hong Kong time
+    now = datetime.now(tz=_CST)
     date_str = now.strftime("%Y-%m-%d")
-    generated_date = now.strftime("%Y-%m-%d %H:%M UTC")
+    generated_date = now.strftime("%Y-%m-%d %H:%M CST")
 
     # Output directory
     out_dir = Path(__file__).parent.parent / "output" / ticker
@@ -122,9 +134,9 @@ def generate_html_report(
         run += 1
 
     # ── Jinja2 template ──
-    if template_dir is None:
-        template_dir = str(Path(__file__).parent.parent / "templates")
-    env = Environment(loader=FileSystemLoader(template_dir), autoescape=False)
+    env = _jinja_env if template_dir is None else Environment(
+        loader=FileSystemLoader(template_dir), autoescape=False
+    )
     template = env.get_template("report.html")
 
     # Profile shortcut
@@ -155,7 +167,11 @@ def generate_html_report(
             (prices[-1]["close"] - prices[0]["close"]) / prices[0]["close"] * 100, 1
         )
 
-    # Market cap in billions
+    # Currency symbol for this stock's native market
+    _raw_currency = profile.get("currency", "USD") or "USD"
+    currency_symbol = _CURRENCY_SYMBOL.get(_raw_currency, _raw_currency + "\u00a0")
+
+    # Market cap in billions (local currency)
     mktcap_b = None
     if profile.get("market_cap"):
         mktcap_b = f"{profile['market_cap'] / 1000:.1f}"
@@ -163,7 +179,12 @@ def generate_html_report(
     # 52W range
     w52h = fin_m.get("52w_high")
     w52l = fin_m.get("52w_low")
-    week52_range = f"${w52l} – ${w52h}" if w52h and w52l else None
+    cs = currency_symbol
+    week52_range = f"{cs}{w52l} – {cs}{w52h}" if w52h and w52l else None
+
+    # Logo placeholder initial: prefer cn_name → company name → ticker
+    _display_name = cn_name or profile.get("name", ticker)
+    logo_initial = _display_name[0] if _display_name else ticker[0]
 
     context = dict(
         ticker           = ticker,
@@ -174,10 +195,12 @@ def generate_html_report(
         exchange         = exchange_display,
         country          = country_display,
         logo_url         = profile.get("logo", ""),
+        logo_initial     = logo_initial,
         generated_date  = generated_date,
         generated_year  = now.year,
         data_date       = data.get("fetched_at", date_str)[:10],
         model_name      = model_name,
+        currency_symbol = currency_symbol,
         current_price   = current_price,
         market_cap      = mktcap_b,
         pe_ttm          = f"{fin_m['pe_ttm']:.1f}" if fin_m.get("pe_ttm") else None,
@@ -190,6 +213,7 @@ def generate_html_report(
         peers           = peers,
         metrics         = _build_metrics_cards(data),
         sections        = _parse_sections(brief_text),
+        price_target    = data.get("price_target", {}),
     )
 
     html_content = template.render(**context)

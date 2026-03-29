@@ -32,7 +32,8 @@ _CN_NAME_MAP = {
     "PLTR": "Palantir", "SNOW": "Snowflake",
 }
 
-SYSTEM_PROMPT = """You are a professional equity research analyst. Given structured company data,
+_SYSTEM_PROMPT_TEMPLATE = """\
+You are a professional equity research analyst. Given structured company data,
 produce a concise investment brief in the following exact sections. Be factual, analytical, and direct.
 
 Output format (use these exact section headers):
@@ -48,12 +49,20 @@ List the most important valuation and performance metrics. Compare PE and ROE to
 
 ## Risk Factors
 3-5 bullet points of the most significant risks investors should monitor.
-
-## Earnings Review
-Summarize the last 4 quarters of EPS performance (beat/miss vs. estimate), note the trend.
-
+{earnings_section}
 ## Outlook
 One paragraph with a balanced forward-looking assessment based on all available data."""
+
+_EARNINGS_SECTION = """\
+
+## Earnings Review
+Summarize the last 4 quarters of EPS performance (beat/miss vs. estimate), note the trend."""
+
+
+def _build_system_prompt(data: dict) -> str:
+    """Build system prompt, including Earnings Review only if data is available."""
+    earnings_section = _EARNINGS_SECTION if data.get("earnings") else ""
+    return _SYSTEM_PROMPT_TEMPLATE.format(earnings_section=earnings_section)
 
 
 def _build_prompt(data: dict) -> str:
@@ -132,11 +141,17 @@ def _build_prompt(data: dict) -> str:
     pt = data.get("price_target", {})
     if pt and pt.get("target_mean"):
         lines.append("\n[ANALYST PRICE TARGET]")
-        lines.append(
-            f"Mean: ${pt.get('target_mean')} | Median: ${pt.get('target_median')} | "
-            f"High: ${pt.get('target_high')} | Low: ${pt.get('target_low')} | "
-            f"Updated: {pt.get('last_updated')}"
-        )
+        parts = [
+            f"Mean: ${pt.get('target_mean')}",
+            f"Median: ${pt.get('target_median')}",
+            f"High: ${pt.get('target_high')}",
+            f"Low: ${pt.get('target_low')}",
+        ]
+        if pt.get("analyst_count"):
+            parts.append(f"Analysts: {pt['analyst_count']}")
+        if pt.get("recommendation"):
+            parts.append(f"Consensus: {pt['recommendation'].replace('_',' ')}")
+        lines.append(" | ".join(parts))
 
     # Peers
     peers = data.get("peers", [])
@@ -174,6 +189,7 @@ def generate_brief(data: dict, model: str = "qwen-plus", lang: str = "en") -> st
 
     ticker = data.get("ticker", "UNKNOWN")
     cn_name = None
+    base_prompt = _build_system_prompt(data)   # data-aware: includes Earnings Review only if data exists
     if lang == "cn":
         cn_name = _CN_NAME_MAP.get(ticker)
         lang_instruction = (
@@ -183,17 +199,17 @@ def generate_brief(data: dict, model: str = "qwen-plus", lang: str = "en") -> st
         )
         if cn_name:
             # Plan B: name known locally, no need to ask LLM
-            system_prompt = SYSTEM_PROMPT + lang_instruction
+            system_prompt = base_prompt + lang_instruction
         else:
             # Plan C: ask LLM for Chinese name
-            system_prompt = SYSTEM_PROMPT + lang_instruction + (
+            system_prompt = base_prompt + lang_instruction + (
                 "\n\nADDITIONAL OUTPUT: Before the ## Executive Summary section, output exactly one line:\n"
                 "CHINESE_NAME: [该公司在中文金融媒体中广泛使用的中文名称，如苹果、特斯拉、英伟达、博通。"
                 "若该公司在中文环境中无公认中文名（如 Oracle、Energy Fuels Inc、Ryde Group Ltd），则直接输出英文原名。"
                 "禁止强行翻译或自造名称。]"
             )
     else:
-        system_prompt = SYSTEM_PROMPT
+        system_prompt = base_prompt
 
     print(f"[analyzer] Building prompt for {ticker}...")
     user_prompt = _build_prompt(data)

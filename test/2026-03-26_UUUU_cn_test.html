@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ 'zh-CN' if lang == 'cn' else 'en' }}">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ (cn_name if cn_name else company_name) if lang == 'cn' else company_name }} ({{ ticker }}) — {{ '投资简报' if lang == 'cn' else 'Investment Brief' }}</title>
+<title>Energy Fuels Inc (UUUU) — 投资简报</title>
 <style>
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -194,72 +194,54 @@
   <!-- ── Header ── -->
   <div class="header">
     <div class="header-top">
-      {% if logo_url %}
-      <img class="header-logo" src="{{ logo_url }}" alt="{{ company_name }} logo"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-      <div class="header-logo-placeholder" style="display:none">{{ logo_initial }}</div>
-      {% else %}
-      <div class="header-logo-placeholder">{{ logo_initial }}</div>
-      {% endif %}
+      
+      <img class="header-logo" src="https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/EFR.TO.png" alt="Energy Fuels Inc logo">
+      
       <div class="header-meta">
-        {% if lang == 'cn' %}
-        <div>生成时间：{{ generated_date }}</div>
-        <div>数据日期：{{ data_date }}</div>
-        <div>模型：{{ model_name }}</div>
-        {% else %}
-        <div>Generated: {{ generated_date }}</div>
-        <div>Data as of: {{ data_date }}</div>
-        <div>Model: {{ model_name }}</div>
-        {% endif %}
+        
+        <div>生成时间：2026-03-26 09:44 UTC</div>
+        <div>数据日期：2026-03-26</div>
+        <div>模型：qwen-plus</div>
+        
       </div>
     </div>
     <div class="company-name">
-      {% if lang == 'cn' and cn_name %}{{ cn_name }}{% else %}{{ company_name }}{% endif %}
-      <span class="ticker-badge">{{ ticker }}</span>
+      Energy Fuels Inc
+      <span class="ticker-badge">UUUU</span>
     </div>
-    <div class="header-tagline">{{ industry }} &nbsp;|&nbsp; {{ exchange }} &nbsp;|&nbsp; {{ country }}</div>
+    <div class="header-tagline">能源 &nbsp;|&nbsp; NYSE MKT LLC &nbsp;|&nbsp; 美国</div>
   </div>
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    {% if current_price %}
+    
     <div class="stat-item">
-      <div class="stat-label">{{ '当前价格' if lang == 'cn' else 'Current Price' }}</div>
-      <div class="stat-value">{{ currency_symbol }}{{ current_price }}</div>
+      <div class="stat-label">当前价格</div>
+      <div class="stat-value">$18.75</div>
     </div>
-    {% endif %}
-    {% if market_cap %}
+    
+    
     <div class="stat-item">
-      <div class="stat-label">{{ '市值' if lang == 'cn' else 'Market Cap' }}</div>
-      <div class="stat-value">{{ currency_symbol }}{{ market_cap }}B</div>
+      <div class="stat-label">市值</div>
+      <div class="stat-value">$4.5B</div>
     </div>
-    {% endif %}
-    {% if pe_ttm %}
+    
+    
+    
     <div class="stat-item">
-      <div class="stat-label">{{ '市盈率（TTM）' if lang == 'cn' else 'P/E (TTM)' }}</div>
-      <div class="stat-value">{{ pe_ttm }}x</div>
+      <div class="stat-label">52周区间</div>
+      <div class="stat-value">$3.2 – $27.9</div>
     </div>
-    {% endif %}
-    {% if week52_range %}
+    
+    
     <div class="stat-item">
-      <div class="stat-label">{{ '52周区间' if lang == 'cn' else '52W Range' }}</div>
-      <div class="stat-value">{{ week52_range }}</div>
-    </div>
-    {% endif %}
-    {% if price_change_3m is not none %}
-    <div class="stat-item">
-      <div class="stat-label">{{ '3个月涨跌' if lang == 'cn' else '3M Return' }}</div>
-      <div class="stat-value" style="color:{% if price_change_3m >= 0 %}#6ee09a{% else %}#ff8080{% endif %}">
-        {{ '%+.1f'|format(price_change_3m) }}%
+      <div class="stat-label">3个月涨跌</div>
+      <div class="stat-value" style="color:#6ee09a">
+        +28.1%
       </div>
     </div>
-    {% endif %}
-    {% if price_target and price_target.target_mean %}
-    <div class="stat-item">
-      <div class="stat-label">{{ '分析师目标价' if lang == 'cn' else 'Analyst Target' }}</div>
-      <div class="stat-value">{{ currency_symbol }}{{ price_target.target_mean }}</div>
-    </div>
-    {% endif %}
+    
+    
   </div>
 
   <!-- ── Body ── -->
@@ -269,161 +251,225 @@
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-summary">📋</div>
-        <div class="section-title">{{ '核心摘要' if lang == 'cn' else 'Executive Summary' }}</div>
+        <div class="section-title">核心摘要</div>
       </div>
-      <div class="section-content">{{ sections.executive_summary | safe }}</div>
+      <div class="section-content"><p>Energy Fuels Inc 是一家专注于铀和稀土元素（尤其是重稀土）开采与加工的美国关键矿产企业，正受益于美国能源安全与国防供应链本土化政策加速推进。公司近期实现高纯度铽氧化物（Terbium Oxide）的美国本土量产，系历史性突破；同时完成管理层交接，新任CEO聚焦估值修复与运营执行力提升。尽管当前仍处于亏损阶段，但收入持续增长、现金状况稳健、资产负债表健康，叠加地缘政治驱动的长期需求刚性，构成明确的战略性投资主题。</p></div>
     </div>
 
     <!-- Key Metrics -->
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-metrics">📊</div>
-        <div class="section-title">{{ '关键指标' if lang == 'cn' else 'Key Metrics' }}</div>
+        <div class="section-title">关键指标</div>
       </div>
-      {% if metrics %}
+      
       <div class="metrics-grid">
-        {% for m in metrics %}
+        
         <div class="metric-card">
-          <div class="label">{{ m.label }}</div>
-          <div class="value">{{ m.value }}</div>
-          {% if m.sub %}<div class="sub">{{ m.sub }}</div>{% endif %}
+          <div class="label">P/B</div>
+          <div class="value">5.1x</div>
+          
         </div>
-        {% endfor %}
+        
+        <div class="metric-card">
+          <div class="label">EPS (TTM)</div>
+          <div class="value">$-0.38</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">ROE (TTM)</div>
+          <div class="value">-13.2%</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">Gross Margin</div>
+          <div class="value">20.9%</div>
+          
+        </div>
+        
+        <div class="metric-card">
+          <div class="label">Net Margin</div>
+          <div class="value">-129.9%</div>
+          
+        </div>
+        
       </div>
-      {% endif %}
-      {% if price_target and price_target.target_mean %}
-      <div class="analyst-target-bar">
-        <span class="at-label">{{ '分析师目标价共识' if lang == 'cn' else 'Analyst Price Target Consensus' }}</span>
-        <span class="at-item"><span class="at-tag">{{ '均值' if lang == 'cn' else 'Mean' }}</span> {{ currency_symbol }}{{ price_target.target_mean }}</span>
-        <span class="at-item"><span class="at-tag">{{ '中位' if lang == 'cn' else 'Median' }}</span> {{ currency_symbol }}{{ price_target.target_median }}</span>
-        <span class="at-item at-high"><span class="at-tag">{{ '最高' if lang == 'cn' else 'High' }}</span> {{ currency_symbol }}{{ price_target.target_high }}</span>
-        <span class="at-item at-low"><span class="at-tag">{{ '最低' if lang == 'cn' else 'Low' }}</span> {{ currency_symbol }}{{ price_target.target_low }}</span>
-        {% if price_target.analyst_count %}<span class="at-date">{{ price_target.analyst_count }}{{ '位分析师' if lang == 'cn' else ' analysts' }}{% if price_target.recommendation %} · {{ price_target.recommendation.replace('_',' ') }}{% endif %}</span>{% endif %}
-      </div>
-      {% endif %}
-      <div class="section-content">{{ sections.key_metrics | safe }}</div>
+      
+      
+      <div class="section-content"><ul>
+<li>市净率（P/B）5.09倍，显著高于同业中位数（UEC约2.8x，LEU约3.5x），反映市场对其资源储备与加工能力的溢价预期；  </li>
+<li>市销率（P/S）67.2倍，极高，主因营收基数小（$1亿）且尚未规模化盈利，不可直接对标成熟能源公司；  </li>
+<li>滚动市盈率（P/E）无定义（EPS为负），行业可比公司如UEC、LEU当前P/E亦多为负或极高，凸显板块整体处于早期盈利转化阶段；  </li>
+<li>净资产收益率（ROE）-13.16%，较前两年收窄（2024年为-22.4%），显示亏损幅度趋缓；  </li>
+<li>流动比率高达30.7，现金短债比超15x，财务结构极为保守，无短期偿债压力。</li>
+</ul></div>
     </div>
 
     <!-- Price context -->
-    {% if price_history %}
+    
     <div class="price-row">
       <div class="price-box">
-        <div class="label">{{ '当前价格' if lang == 'cn' else 'Current Price' }}</div>
-        <div class="value">{{ currency_symbol }}{{ price_history[-1].close }}</div>
-        <div class="change {% if price_change_3m >= 0 %}pos{% else %}neg{% endif %}">
-          {{ '%+.1f'|format(price_change_3m) }}% {{ '（3个月）' if lang == 'cn' else '(3M)' }}
+        <div class="label">当前价格</div>
+        <div class="value">$18.75</div>
+        <div class="change pos">
+          +28.1% （3个月）
         </div>
       </div>
       <div class="price-box">
-        <div class="label">{{ '52周高点' if lang == 'cn' else '52W High' }}</div>
-        <div class="value">{{ currency_symbol }}{{ week52_high }}</div>
+        <div class="label">52周高点</div>
+        <div class="value">$27.9</div>
       </div>
       <div class="price-box">
-        <div class="label">{{ '52周低点' if lang == 'cn' else '52W Low' }}</div>
-        <div class="value">{{ currency_symbol }}{{ week52_low }}</div>
+        <div class="label">52周低点</div>
+        <div class="value">$3.2</div>
       </div>
-      {% if peers %}
+      
       <div class="price-box" style="flex:2">
-        <div class="label">{{ '同业公司' if lang == 'cn' else 'Peer Companies' }}</div>
+        <div class="label">同业公司</div>
         <div style="margin-top:8px" class="peers-list">
-          {% for p in peers[:8] %}
-          <span class="peer-tag">{{ p }}</span>
-          {% endfor %}
+          
+          <span class="peer-tag">UEC</span>
+          
+          <span class="peer-tag">CNR</span>
+          
+          <span class="peer-tag">BTU</span>
+          
+          <span class="peer-tag">UUUU</span>
+          
+          <span class="peer-tag">LEU</span>
+          
+          <span class="peer-tag">ARLP</span>
+          
+          <span class="peer-tag">NRP</span>
+          
+          <span class="peer-tag">URE.TO</span>
+          
         </div>
       </div>
-      {% endif %}
+      
     </div>
-    {% endif %}
+    
 
     <!-- Recent Catalysts -->
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-catalysts">⚡</div>
-        <div class="section-title">{{ '近期催化剂' if lang == 'cn' else 'Recent Catalysts' }}</div>
+        <div class="section-title">近期催化剂</div>
       </div>
-      <div class="section-content">{{ sections.recent_catalysts | safe }}</div>
+      <div class="section-content"><ul>
+<li>2026年3月25日：在美国犹他州成功从佛罗里达与乔治亚州矿石中提取并生产出高纯度铽氧化物，系全美首例，验证其稀土分离与提纯技术商业化能力。  </li>
+<li>2026年3月20日：宣布CEO更替——创始人Mark Chalmers退休，资深矿业运营专家Ross Bhappu接任，市场视其为强化执行与资本配置效率的关键信号。  </li>
+<li>美国国防部《2024年关键矿产战略》及《国防授权法案》持续加码对本土铀/稀土加工项目的补贴与采购承诺，公司已获多项DOE资助及承购协议。  </li>
+<li>铀价自2025年Q4以来上涨超45%（U3O8现货价突破$100/lb），公司作为北美最大在产铀生产商之一，2026年产量指引上调12%。  </li>
+<li>与美国核燃料循环企业（如Centrus）深化合作，拓展“铀+稀土”一体化服务模式，提升客户粘性与定价权。</li>
+</ul></div>
     </div>
 
     <!-- Risk Factors -->
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-risks">⚠️</div>
-        <div class="section-title">{{ '风险因素' if lang == 'cn' else 'Risk Factors' }}</div>
+        <div class="section-title">风险因素</div>
       </div>
-      <div class="section-content">{{ sections.risk_factors | safe }}</div>
+      <div class="section-content"><ul>
+<li>持续亏损且扭亏时间不确定：过去4季度EPS连续为负，2025全年净亏损达$1.02亿，盈利拐点依赖铀价维持高位+稀土产品放量+成本优化三重兑现。  </li>
+<li>政策依赖度高：核心增长逻辑锚定美国政府补贴与采购，若中期选举后产业政策转向或预算削减，将直接影响项目进度与现金流。  </li>
+<li>稀土商业化进度慢于预期：铽氧化物虽已量产，但尚未披露客户订单、价格及批量交付时间表，存在技术转化到商业变现的落差风险。  </li>
+<li>资本开支压力上升：2026年计划资本支出达$1.35亿（+30% YoY），主要投向白岗岩稀土项目扩建，可能阶段性稀释每股收益并推高债务。  </li>
+<li>地缘扰动传导：中东冲突虽短期提振铀情绪，但若引发全球能源价格剧烈波动或美联储超预期加息，将压制成长股估值并增加融资成本。</li>
+</ul></div>
     </div>
 
     <!-- Earnings Review -->
-    {% if earnings or sections.earnings_review %}
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-earnings">📈</div>
-        <div class="section-title">{{ '财报回顾' if lang == 'cn' else 'Earnings Review' }}</div>
+        <div class="section-title">财报回顾</div>
       </div>
-      {% if earnings %}
+      
       <table class="earnings-table">
         <tr>
-          {% if lang == 'cn' %}
+          
           <th>季度</th><th>实际EPS</th><th>预期EPS</th><th>超预期幅度</th><th>结果</th>
-          {% else %}
-          <th>Period</th><th>Actual EPS</th><th>Est. EPS</th><th>Surprise</th><th>Result</th>
-          {% endif %}
+          
         </tr>
-        {% for e in earnings %}
+        
         <tr>
-          <td>{{ e.period }}</td>
-          <td>{{ currency_symbol }}{{ e.actual_eps }}</td>
-          <td>{{ currency_symbol }}{{ e.estimated_eps }}</td>
-          <td>{% if e.surprise_pct is not none %}{{ '%+.1f'|format(e.surprise_pct) }}%{% else %}—{% endif %}</td>
+          <td>2025-12-31</td>
+          <td>$-0.08</td>
+          <td>$-0.0918</td>
+          <td>+12.8%</td>
           <td>
-            {% if e.result == 'beat' %}<span class="badge badge-beat">{{ '超预期' if lang == 'cn' else 'BEAT' }}</span>
-            {% elif e.result == 'miss' %}<span class="badge badge-miss">{{ '未达预期' if lang == 'cn' else 'MISS' }}</span>
-            {% else %}<span class="badge badge-na">—</span>{% endif %}
+            <span class="badge badge-beat">超预期</span>
+            
           </td>
         </tr>
-        {% endfor %}
+        
+        <tr>
+          <td>2025-09-30</td>
+          <td>$-0.07</td>
+          <td>$-0.0612</td>
+          <td>-14.4%</td>
+          <td>
+            <span class="badge badge-miss">未达预期</span>
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td>2025-06-30</td>
+          <td>$-0.1</td>
+          <td>$-0.0342</td>
+          <td>-192.4%</td>
+          <td>
+            <span class="badge badge-miss">未达预期</span>
+            
+          </td>
+        </tr>
+        
+        <tr>
+          <td>2025-03-31</td>
+          <td>$-0.13</td>
+          <td>$-0.0704</td>
+          <td>-84.7%</td>
+          <td>
+            <span class="badge badge-miss">未达预期</span>
+            
+          </td>
+        </tr>
+        
       </table>
       <br>
-      {% endif %}
-      <div class="section-content">{{ sections.earnings_review | safe }}</div>
+      
+      <div class="section-content"><p>过去四个季度EPS全部为负：2025-Q4（-0.08美元，小幅超预期12.8%）、2025-Q3（-0.07美元，低于预期14.4%）、2025-Q2（-0.10美元，大幅低于预期192.4%）、2025-Q1（-0.13美元，低于预期84.7%）。趋势显示亏损绝对值在Q4明显收窄，环比改善显著，但同比仍承压；市场已逐步从“是否盈利”转向关注“亏损收窄斜率”与“非铀业务贡献占比”。</p></div>
     </div>
-    {% endif %}
 
     <!-- Outlook -->
     <div class="section">
       <div class="section-header">
         <div class="section-icon icon-outlook">🔭</div>
-        <div class="section-title">{{ '前景展望' if lang == 'cn' else 'Outlook' }}</div>
+        <div class="section-title">前景展望</div>
       </div>
-      <div class="section-content">{{ sections.outlook | safe }}</div>
+      <div class="section-content"><p>展望未来12–24个月，Energy Fuels处于从“资源持有者”向“关键技术服务商”转型的关键窗口期：铀业务提供稳定现金流与政策信用背书，稀土分离产能释放将成为第二增长曲线。在新管理层主导下，运营效率、项目节奏与资本纪律有望提升；但需密切跟踪Q2起铽产品的首批商业订单落地、白岗岩项目调试进展及2026年中报EBITDA转正信号。短期股价仍将高度敏感于铀价波动与政策催化节奏，中长期价值取决于其能否确立北美重稀土精炼龙头地位——当前估值已部分透支乐观预期，上行空间与下行风险均显著，适合具备高风险承受能力、聚焦国家战略赛道的投资者。</p></div>
     </div>
 
   </div><!-- /body -->
 
   <!-- ── Footer ── -->
   <div class="footer">
-    {% if lang == 'cn' %}
+    
     <strong>数据来源：</strong>
     基本面数据与新闻来自 <a href="https://finnhub.io">Finnhub</a> &nbsp;|&nbsp;
     价格历史与财务报表来自 <a href="https://finance.yahoo.com">Yahoo Finance (yfinance)</a> &nbsp;|&nbsp;
-    分析内容由 <strong>{{ model_name }}</strong>（阿里云百炼 DashScope）生成
+    分析内容由 <strong>qwen-plus</strong>（阿里云百炼 DashScope）生成
     <div class="divider"></div>
     <strong>免责声明：</strong>
     本报告由程序自动生成，仅供参考，不构成任何投资建议、买卖证券的要约或推荐。过往表现不代表未来结果。
     投资者在做出任何投资决策前，应进行独立尽职调查并咨询专业财务顾问。数据准确性不作保证。
-    &copy; {{ generated_year }} 投资简报生成器。
-    {% else %}
-    <strong>Data Sources:</strong>
-    Fundamental data and news via <a href="https://finnhub.io">Finnhub</a> &nbsp;|&nbsp;
-    Price history and financial statements via <a href="https://finance.yahoo.com">Yahoo Finance (yfinance)</a> &nbsp;|&nbsp;
-    Analysis generated by <strong>{{ model_name }}</strong> (Alibaba Cloud DashScope)
-    <div class="divider"></div>
-    <strong>Disclaimer:</strong>
-    This report is generated automatically for informational purposes only and does not constitute financial advice,
-    investment recommendations, or an offer to buy or sell any security. Past performance is not indicative of future results.
-    Always conduct your own due diligence and consult a qualified financial advisor before making investment decisions.
-    Data accuracy is not guaranteed. &copy; {{ generated_year }} Investment Brief Generator.
-    {% endif %}
+    &copy; 2026 投资简报生成器。
+    
   </div>
 
 </div><!-- /page -->

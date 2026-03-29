@@ -1,12 +1,12 @@
 # Investment Brief Generator
 
-AI-powered investment brief generator — one-click company research reports for US equities, powered by Qwen LLM and market data APIs.
+AI-powered investment brief generator — one-click company research reports for US, Hong Kong, and A-share equities, powered by Qwen LLM and market data APIs.
 
 ---
 
 ## What It Does
 
-Generates a structured, analyst-style investment brief for any US-listed stock in seconds. Instead of manually pulling data from multiple sources, this tool fetches everything automatically and uses an LLM to synthesize it into a clean, readable report.
+Generates a structured, analyst-style investment brief for any listed stock in seconds. Instead of manually pulling data from multiple sources, this tool fetches everything automatically and uses an LLM to synthesize it into a clean, readable report.
 
 **Output includes:**
 - Executive summary and investment thesis
@@ -21,16 +21,39 @@ Supports both English and Simplified Chinese output.
 
 ---
 
+## Market Coverage (V2)
+
+| Feature | US Equities | HK Stocks | A-Shares (CN) |
+|---------|-------------|-----------|---------------|
+| Company profile | ✅ Finnhub | ✅ yfinance | ✅ yfinance |
+| Company logo | ✅ favicon | ✅ favicon | ✅ favicon |
+| Key metrics | ✅ Finnhub | ✅ yfinance | ✅ yfinance |
+| 52-week high/low | ✅ | ✅ | ✅ |
+| Price history | ✅ yfinance | ✅ yfinance | ✅ yfinance |
+| News | ✅ Finnhub | ✅ yfinance | ✅ akshare |
+| Peer companies | ✅ Finnhub | ❌ | ✅ akshare |
+| Earnings surprises | ✅ Finnhub | ❌ | ❌ |
+| Analyst price target | ✅ yfinance | ✅ yfinance (partial) | ❌ |
+| Currency display | $ USD | HK$ HKD | ¥ CNY |
+
+**Ticker input:** numeric tickers are auto-detected and suffixed.
+- `600519` → `600519.SS` (Shanghai)
+- `000858` → `000858.SZ` (Shenzhen)
+- `0700` or `700` → `0700.HK` (Hong Kong)
+- `AAPL`, `TSLA` → US (no change)
+
+---
+
 ## Architecture
 
 ```
 main.py
-├── src/data_fetcher.py     → Pulls data from Finnhub API + yfinance
+├── src/data_fetcher.py     → Pulls data (Finnhub / yfinance / akshare), parallel fetch
 ├── src/analyzer.py         → Sends structured data to Qwen LLM, returns brief
 └── src/report_generator.py → Renders HTML + Markdown report via Jinja2
 ```
 
-Data flow: `ticker input → fetch → LLM analysis → HTML/MD report`
+Data flow: `ticker input → detect market → fetch (parallel) → LLM analysis → HTML/MD report`
 
 The LLM is only involved in the analysis step. All data fetching and report rendering is deterministic Python logic.
 
@@ -38,25 +61,25 @@ The LLM is only involved in the analysis step. All data fetching and report rend
 
 ## Data Sources
 
-| Source | Data |
-|--------|------|
-| [Finnhub](https://finnhub.io) | Company profile, key metrics, earnings, news, analyst price targets, peers |
-| [yfinance](https://github.com/ranaroussi/yfinance) | Financial statements, price history |
+| Source | Used For |
+|--------|----------|
+| [Finnhub](https://finnhub.io) | US: profile, metrics, earnings, news, peers, price targets |
+| [yfinance](https://github.com/ranaroussi/yfinance) | All markets: price history, financials; HK/CN: profile, metrics fallback, news |
+| [akshare](https://github.com/jindaxiang/akshare) | A-shares: news, peer companies (no API key required) |
 
-Both sources are **free tier** — no paid subscription required.
+All sources are **free tier** — no paid subscription required.
 
 ---
 
 ## Cost
 
-Using Qwen3-Plus (Alibaba DashScope):
+Using Qwen-Plus (Alibaba DashScope):
 
 | | Cost |
 |---|---|
-| Single report | ~$0.002 USD |
-| 20-stock watchlist | ~$0.04 USD |
-
-Significantly cheaper than GPT-4 for the same task.
+| US report (with earnings + news) | ~$0.0018 USD |
+| HK / A-share report | ~$0.0014 USD |
+| 20-stock watchlist | ~$0.03–0.04 USD |
 
 ---
 
@@ -66,6 +89,8 @@ Significantly cheaper than GPT-4 for the same task.
 ```bash
 python main.py AAPL
 python main.py TSLA --lang cn
+python main.py 0700          # HKEX: Tencent
+python main.py 600519        # SSE: Kweichow Moutai
 ```
 
 **Multiple tickers:**
@@ -120,20 +145,23 @@ python main.py AAPL
 Plain text file, one ticker per line. Lines starting with `#` are ignored.
 
 ```
-# My watchlist
+# US
 AAPL
 MSFT
-NVDA
-TSLA
+# HK
+0700
+# A-share
+600519
 ```
 
 ---
 
-## Current Limitations
+## Known Limitations
 
-- US equities only (Hong Kong / A-share support planned)
-- News limited to last 7 days via Finnhub free tier
-- Price target data availability varies by ticker
+- HK peer companies: no reliable free data source
+- A-share / HK earnings surprises: Finnhub 403 for non-US tickers
+- A-share analyst price targets: no free data source
+- Logo download may timeout for sites with slow international access
 
 ---
 
@@ -141,8 +169,9 @@ TSLA
 
 - [Finnhub Python Client](https://github.com/Finnhub-Stock-API/finnhub-python)
 - [yfinance](https://github.com/ranaroussi/yfinance)
+- [akshare](https://github.com/jindaxiang/akshare)
 - [Jinja2](https://jinja.palletsprojects.com/)
 - [python-markdown](https://python-markdown.github.io/)
-- Qwen3-Plus via [DashScope](https://dashscope.aliyuncs.com)
+- Qwen-Plus via [DashScope](https://dashscope.aliyuncs.com)
 
 Built with Claude (Anthropic).
