@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -27,38 +28,50 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests and capture results
+      - name: Run all tests
+        id: run_tests
+        timeout-minutes: 5
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
-          mkdir -p test-results
-          echo "===== TEST RUN: $(date -u) =====" > test-results/latest.log
-          echo "Commit: ${{ github.sha }}" >> test-results/latest.log
-          echo "" >> test-results/latest.log
-          echo "--- API Connection Test ---" >> test-results/latest.log
-          python test_apis.py >> test-results/latest.log 2>&1 || echo "[FAILED] test_apis.py" >> test-results/latest.log
-          echo "" >> test-results/latest.log
-          echo "--- Generate AAPL Report ---" >> test-results/latest.log
-          python main.py AAPL >> test-results/latest.log 2>&1 || echo "[FAILED] main.py AAPL" >> test-results/latest.log
-          echo "" >> test-results/latest.log
-          echo "===== END =====" >> test-results/latest.log
+          mkdir -p test-results output
+          LOG=test-results/latest.log
+          echo "===== TEST RUN: $(date -u) =====" > $LOG
+          echo "Commit: $GITHUB_SHA" >> $LOG
+          echo "" >> $LOG
+
+          echo "--- API Test ---" >> $LOG
+          python test_apis.py >> $LOG 2>&1 && echo "[PASS] test_apis" >> $LOG || echo "[FAIL] test_apis" >> $LOG
+
+          echo "" >> $LOG
+          echo "--- AAPL Report ---" >> $LOG
+          timeout 120 python main.py AAPL >> $LOG 2>&1 && echo "[PASS] main.py AAPL" >> $LOG || echo "[FAIL] main.py AAPL" >> $LOG
+
+          echo "" >> $LOG
+          echo "===== END =====" >> $LOG
+          cat $LOG
         continue-on-error: true
 
-      - name: Commit test results
+      - name: Commit results
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin claude/project-review-questions-15uuM
+          git fetch origin claude/project-review-questions-15uuM
+          git reset --soft origin/claude/project-review-questions-15uuM
           git add test-results/latest.log
-          git diff --staged --quiet || git commit -m "ci: update test results [skip ci]"
-          git push
+          if ! git diff --staged --quiet; then
+            git commit -m "ci: update test results [skip ci]"
+            git push origin HEAD:claude/project-review-questions-15uuM
+          fi
 
-      - name: Upload report artifact
+      - name: Upload artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aapl-report
-          path: output/
+          name: test-output
+          path: |
+            test-results/
+            output/
           if-no-files-found: warn
