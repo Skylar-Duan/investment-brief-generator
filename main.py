@@ -7,15 +7,34 @@ Usage:
   python main.py --watchlist watchlist.txt
 """
 
+import os
 import sys
 import argparse
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from src.data_fetcher import fetch_all
 from src.analyzer import generate_brief
 from src.report_generator import generate_html_report
+
+
+class DataError(Exception):
+    """Raised when fetched data is insufficient to generate a report."""
+
+
+def _check_env_keys() -> None:
+    """Validate required API keys exist before processing any tickers."""
+    missing = [k for k in ("DASHSCOPE_API_KEY", "FINNHUB_API_KEY") if not os.environ.get(k)]
+    if missing:
+        print(f"\nFATAL: Missing API key(s): {', '.join(missing)}")
+        print("Create a .env file in the project root:")
+        for k in missing:
+            print(f"  {k}=your_key_here")
+        sys.exit(1)
 
 
 def process_ticker(ticker: str, model: str = "qwen-plus", lang: str = "en") -> dict:
@@ -26,6 +45,10 @@ def process_ticker(ticker: str, model: str = "qwen-plus", lang: str = "en") -> d
 
     # 1. Fetch data
     data = fetch_all(ticker)
+
+    # Validate: empty profile means invalid ticker or all APIs failed
+    if not data.get("profile") or not data["profile"].get("name"):
+        raise DataError(f"No company data found — invalid ticker or data source unavailable")
 
     # 2. Generate LLM brief (token/cost info printed inside)
     brief_text, cn_name = generate_brief(data, model=model, lang=lang)
@@ -82,6 +105,8 @@ def main():
     if not tickers:
         parser.print_help()
         sys.exit(0)
+
+    _check_env_keys()
 
     # Deduplicate while preserving order
     seen = set()
