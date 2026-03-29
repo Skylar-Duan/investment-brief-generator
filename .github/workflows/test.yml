@@ -28,15 +28,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run all tests
-        id: run_tests
-        timeout-minutes: 5
+      - name: Run tests and generate report
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
         run: |
-          mkdir -p test-results output
+          mkdir -p test-results ci-output
           LOG=test-results/latest.log
+
           echo "===== TEST RUN: $(date -u) =====" > $LOG
           echo "Commit: $GITHUB_SHA" >> $LOG
           echo "" >> $LOG
@@ -47,6 +46,9 @@ jobs:
           echo "" >> $LOG
           echo "--- AAPL Report ---" >> $LOG
           timeout 120 python main.py AAPL >> $LOG 2>&1 && echo "[PASS] main.py AAPL" >> $LOG || echo "[FAIL] main.py AAPL" >> $LOG
+
+          # Copy generated HTML to ci-output so it persists in repo
+          cp -r output/. ci-output/ 2>/dev/null || true
 
           echo "" >> $LOG
           echo "===== END =====" >> $LOG
@@ -60,18 +62,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin claude/project-review-questions-15uuM
           git reset --soft origin/claude/project-review-questions-15uuM
-          git add test-results/latest.log
+          git add test-results/latest.log ci-output/
           if ! git diff --staged --quiet; then
             git commit -m "ci: update test results [skip ci]"
             git push origin HEAD:claude/project-review-questions-15uuM
           fi
-
-      - name: Upload artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-output
-          path: |
-            test-results/
-            output/
-          if-no-files-found: warn
